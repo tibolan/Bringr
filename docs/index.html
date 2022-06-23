@@ -1,24 +1,378 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <title>Bringr</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;700&display=swap" rel="stylesheet">
-  <style>
-    html, body {
-      font-family: "Roboto", sans-serif;
-    }
-    h1 {
-      text-align: center;
-    }
-  </style>
+    <meta charset="UTF-8">
+    <title>Bringr</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;700&display=swap" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.28.0/themes/prism.css" rel="stylesheet"/>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            border: 0;
+            box-sizing: border-box;
+        }
+
+        html, body {
+            padding: 0;
+            margin: 0;
+            font-size: 16px;
+            list-style: none;
+            font-family: 'Roboto', sans-serif;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        #app {
+            padding: 20px;
+            display: grid;
+            grid-template-columns: 330px 1fr;
+            grid-template-rows: calc(100vh - 40px);
+            grid-gap: 20px;
+            height: 100vh;
+        }
+
+        @keyframes appear {
+            from {
+                opacity: .000001;
+            }
+            to {
+                opacity: 1;
+            }
+        }
+
+        h1 small {
+            font-size: 14px;
+            font-weight: 400;
+        }
+
+        h2 {
+            margin-bottom: 10px;
+        }
+
+        main {
+            display: grid;
+            grid-template-columns: repeat(2, calc(50% - 10px));
+            grid-template-rows: 50px calc(100vh - 90px);
+            grid-gap: 20px;
+        }
+
+        .grid-item, header {
+            overflow-y: auto;
+            padding-right: 10px;
+        }
+
+        .grid-item:first-child {
+            grid-column: span 2;
+        }
+
+        form {
+            display: grid;
+            grid-template-columns: 100%;
+            grid-gap: 20px;
+        }
+
+        fieldset {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+            justify-content: flex-start;
+            margin: 0px;
+            padding: 15px;
+            border: 1px solid black;
+        }
+
+        fieldset legend {
+            background: white;
+            font-weight: bold;
+            padding: 0 15px;
+        }
+
+        .legend {
+            font-weight: bold;
+        }
+
+        .legend {
+            border-top: 3px solid rgba(0, 0, 0, 0.1);
+            padding-top: 10px;
+            margin-top: 10px;
+            margin-bottom: 10px;
+            min-width: 100%;
+        }
+
+        fieldset > div {
+            min-width: 100%;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        fieldset > div > label {
+            flex: 1;
+        }
+
+        fieldset > div > a {
+            min-width: 100%;
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            grid-gap: 20px;
+        }
+
+        form label, form .label {
+            white-space: nowrap;
+            margin-right: 10px;
+        }
+
+        form label, form .label, form input, form select, form button {
+            margin-bottom: 10px;
+            font-family: 'Roboto', sans-serif;
+        }
+
+        form input:not([type="checkbox"]), form select, form button {
+            min-width: 100px;
+            max-width: 100px;
+        }
+
+        form input[type="checkbox"] {
+            transform: scale(1.2);
+        }
+
+        form input, form select, form button {
+            padding: 5px;
+            background: #f3f3f3;
+        }
+
+        form button {
+            padding: 10px;
+            width: 100%;
+        }
+
+        form > div {
+            display: flex;
+            flex-direction: row;
+            align-items: center;
+            margin-right: 10px;
+
+        }
+
+        pre code {
+            white-space: pre-wrap;
+            font-size: 14px !important;
+        }
+
+        pre code span {
+            line-height: 10px !important;
+        }
+
+        pre code span.property:hover {
+            background: rgba(0, 0, 0, .5);
+            color: white;
+            cursor: pointer;
+        }
+
+
+        *::-webkit-scrollbar {
+            width: 10px;
+            height: 10px;
+            border-radius: 10px;
+        }
+
+        *::-webkit-scrollbar-thumb {
+            background-color: rgba(0, 0, 0, .25);
+            border-radius: 10px;
+        }
+
+        html,
+        body,
+        textarea {
+            scrollbar-color: rgba(0, 0, 0, .25);
+            scrollbar-width: thin;
+        }
+
+    </style>
 </head>
 <body>
 <div id="app">
-  <h1>Bringr, Ultimate Fetch Wrapper</h1>
+    <header>
+        <form @submit.prevent="onSubmit" @input="onChange" @change="onChange">
+            <fieldset>
+                <legend>Ressource</legend>
+                <div>
+                    <label for="routes">Route</label>
+                    <select v-model="model.url" id="routes">
+                        <template v-for="(option, key) in demoUrls">
+                            <option :value="option">{{ key }}</option>
+                        </template>
+                        <!--            <option value="http://localhost:1177/text">Text</option>
+                                    <option value="https://images-api.nasa.gov/search?q=sun eclipse">JSON</option>
+                                    <option value="http://localhost:1177/blob">Blob</option>
+                                    <option value="http://localhost:63342/Bringr/image.png">PNG</option>
+                                    <option value="http://localhost:63342/Bringr/foo.txt">File</option>
+                                    <option value="https://file-examples.com/wp-content/uploads/2017/11/file_example_MP3_700KB.mp3">MP3</option>
+                                    <option value="http://localhost:63342/Bringr/video.mp4">Video</option>
+                                    <option value="http://localhost:1177/buffer">Buffer</option>
+                                    <option value="http://localhost:1177/301">Redirection</option>
+                                    <option value="error">Error</option>
+                                    <option value="toto">Bad URL #1</option>
+                                    <option value="ttp://www.google.fr">Bad URL #2</option>
+                                    <option value="https://fonts.gstatic.com/s/roboto/v30/KFOlCnqEu92Fr1MmWUlfBBc4.woff2">Font</option>-->
+                    </select>
+                </div>
+                <div v-if="model.url === demoUrls.error">
+                    <label for="errorType">Error type</label>
+                    <select id="errorType" v-model="model.errorType">
+                        <template v-for="(value, key) of httpErrors">
+                            <option :key="key" :value="key">{{ key }}</option>
+                        </template>
+                    </select>
+                </div>
+
+                <p class="legend">Server options</p>
+                <div>
+                    <label for="delay">Delay</label>
+                    <input type="number" step="250" min="0" id="delay" v-model="model.delay">
+                </div>
+
+            </fieldset>
+
+            <fieldset>
+                <legend>Request</legend>
+                <div>
+                    <label for="method">Method</label>
+                    <select v-model="model.method" id="method">
+                        <option>GET</option>
+                        <option>POST</option>
+                        <option>PATCH</option>
+                        <option>PUT</option>
+                        <option>DELETE</option>
+                    </select>
+                </div>
+                <div>
+                    <label for="cache">Cache</label>
+                    <input type="number" step="1000" min="0" id="cache" v-model="model.cacheable">
+                </div>
+                <div>
+                    <label for="abort">Abortable</label>
+                    <input type="checkbox" id="abort" v-model="model.cancellable">
+                </div>
+                <div>
+                    <label for="timeout">Timeout</label>
+                    <input type="number" step="1000" min="0" id="timeout" v-model="model.timeout">
+                </div>
+                <p class="legend">Body</p>
+                <div>
+                    <label for="body">Method</label>
+                    <select v-model="model.body" id="body">
+                        <option>none</option>
+                        <option>json</option>
+                        <option>formData</option>
+                        <option>blob</option>
+                    </select>
+                </div>
+                <p class="legend">Retry</p>
+                <div>
+                    <label for="retryMax">max</label>
+                    <input type="number" step="1" min="0" id="retryMax" v-model="model.retry.max">
+                </div>
+                <div>
+                    <label for="retryDelay">delay</label>
+                    <input type="number" step="50" min="0" id="retryDelay" v-model="model.retry.delay">
+                </div>
+                <div>
+                    <label for="forceRetry">Force retry</label>
+                    <input type="checkbox" id="forceRetry" v-model="forceRetry">
+                </div>
+
+            </fieldset>
+
+            <fieldset>
+                <legend>Response</legend>
+                <div>
+                    <label for="responseType">Response Type</label>
+                    <select id="responseType" v-model="model.responseType">
+                        <option value="text">Text</option>
+                        <option value="json">JSON</option>
+                        <option value="blob">Blob</option>
+                        <option value="buffer">Buffer</option>
+                        <option value="base64">Base64</option>
+                        <option value="auto">Auto</option>
+                    </select>
+                </div>
+                <div>
+                    <label for="responseNormalize">normalize</label>
+                    <input type="checkbox" id="responseNormalize" v-model="responseNormalize">
+                </div>
+                <div>
+                    <label for="transform">transform</label>
+                    <input type="checkbox" id="transform" v-model="responseTransform">
+                </div>
+            </fieldset>
+
+            <fieldset>
+                <div>
+                    <button type="submit" :disabled="autoRequest">Send request</button>
+                </div>
+                <div>
+                    <label for="autoSubmit">Auto fetch on change</label>
+                    <input type="checkbox" id="autoSubmit" v-model="autoRequest">
+                </div>
+                <div style="flex-direction: column">
+                    <a href="javascript:false" @click="deleteCache">Clear current route cache</a>
+                    <a href="javascript:false" @click="deleteCaches">Clear all caches</a>
+                    <a href="javascript:false" @click="onClear">Clear response</a>
+                </div>
+            </fieldset>
+        </form>
+    </header>
+    <main>
+        <div class="grid-item">
+            <h1>Bringr, <small>Ultimate Fetch wrapper</small></h1>
+        </div>
+        <div class="grid-item" ref="request">
+            <h2>Request</h2>
+            <details>
+                <summary>defaultOptions</summary>
+                <pre><code class="language-javascript" v-html="defaultConfig"></code></pre>
+            </details>
+            <pre @click="automaticDocumentation('request', $event)"><code class="language-javascript"
+                                                                          v-html="renderedRequest"></code></pre>
+            <template v-if="base64Response">
+                <h2>Base64 Preview</h2>
+                <p>Files have been download from <a href="https://file-examples.com/">https://file-examples.com/</a></p>
+                <br>
+                <object :data="base64Response" width="100%"></object>
+            </template>
+        </div>
+        <div class="grid-item" ref="response">
+            <h2>Response</h2>
+            <template v-if="loading">
+        <pre class="language-javascript" style="text-align: center;"><img src="medias/loader.gif" width="200" height="200"></pre>
+            </template>
+            <template v-else-if="response && ( response.error || isError )">
+        <pre @click="automaticDocumentation('response', $event)"><code class="language-javascript">.catch(res: Response) =>
+{{ stringifyCorrectly(response) }}</code></pre>
+            </template>
+            <template v-else-if="response">
+        <pre @click="automaticDocumentation('response', $event)"><code class="language-javascript">.then(res: Response) =>
+{{ stringifyCorrectly(response) }}</code></pre>
+            </template>
+
+        </div>
+    </main>
 </div>
+<script>
+    window.Prism = window.Prism || {};
+    window.Prism.manual = true;
+</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.28.0/components/prism-core.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.28.0/plugins/autoloader/prism-autoloader.min.js"></script>
+<script type="module" src="app.js"></script>
+
 </body>
 </html>

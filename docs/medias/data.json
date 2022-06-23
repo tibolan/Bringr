@@ -1,0 +1,17 @@
+{
+  "ressource": "user",
+  "users": [
+    {
+      "name": "foo",
+      "id": "1"
+    },
+    {
+      "name": "bar",
+      "id": "2"
+    },
+    {
+      "name": "baz",
+      "id": "3"
+    }
+  ]
+}
