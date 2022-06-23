@@ -10,7 +10,8 @@
   ],
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "build": "tsc --watch",
+    "start": "tsc --watch",
+    "build": "tsc",
     "format": "prettier --write \"src/**/*.ts\"",
     "lint": "tslint -p tsconfig.json",
     "prepare": "npm run build",
@@ -27,5 +28,16 @@
     "tslint-config-prettier": "~1.18.0",
     "typescript": "~4.6.4"
   },
-  "dependencies": {}
+  "dependencies": {
+    "body-parser": "~1.19.0",
+    "cookie-parser": "~1.4.4",
+    "cors": "~2.8.5",
+    "dayjs": "~1.10.8",
+    "debug": "~2.6.9",
+    "express": "~4.16.1",
+    "form-data": "~4.0.0",
+    "http-errors": "~1.6.3",
+    "morgan": "~1.9.1",
+    "query-string": "~6.13.8"
+  }
 }
