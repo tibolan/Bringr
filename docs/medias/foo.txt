@@ -1,3 +1,0 @@
-I'm a file text.
-I'm multiline.
-I'm strong.
