@@ -22,8 +22,8 @@ class Bringr {
         cancellable: false,
         timeout: 0,
         retry: {
-          max: 0,
-          delay: 500,
+          max: 1,
+          delay: 1000,
           attempt: 0,
           condition: [408, 504, 598, 599, "BringrTimeoutError"]
         }
@@ -34,7 +34,8 @@ class Bringr {
     response: {
       normalize: true,
       transform: true,
-      type: "json"
+      type: "auto",
+      blobAsBase64: true
     }
   };
   private cache: BringrCache;

@@ -12,15 +12,15 @@ class BringrResponse   {
   public options: BringrResponseOptionsInterface = {
     normalize: true,
     transform: true,
-    type: 'json'
+    type: 'json',
+    blobAsBase64: false
   }
   /**
    * BringrResponse transform response into usable data
    * Could normalize response to a predictive and exhaustive format
    * Could automatically transform your response based on mime type
-   * Supply text, json, blob, arrayBuffer, formData, and even base64(*) output
+   * Supply text, json, blob, arrayBuffer, formData, and even base64 output
    * Could manage fetch duration
-   * (*) not in 'auto' mode
    * Internal code, should not use directly
    * @param options
    */
@@ -168,6 +168,7 @@ class BringrResponse   {
     let blob = await this.blob(res)
     return await new Promise(async (resolve, reject) => {
       try {
+        // await ??
         const reader = await new FileReader();
         reader.onloadend = () => {
           resolve(reader.result)
@@ -178,6 +179,7 @@ class BringrResponse   {
         reader.onabort = (err) => {
           reject(err)
         }
+        // await ??
         reader.readAsDataURL(blob);
       } catch (err) {
         resolve(err)
@@ -191,6 +193,7 @@ class BringrResponse   {
 
   async auto(res: Response) {
     let mime = res.headers.get('content-type')
+
 
     if (!mime) {
       return await this.autoBrutForce(res)
@@ -208,7 +211,12 @@ class BringrResponse   {
         || /^audio/.test(mime)
         || /^font/.test(mime)
     ) {
-      return await this.base64(res)
+
+      console.log(this.options.blobAsBase64)
+      if (this.options.blobAsBase64) {
+        return await this.base64(res)
+      }
+      return await this.blob(res)
     }
     return await this.autoBrutForce(res)
   }

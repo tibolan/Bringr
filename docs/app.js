@@ -47,7 +47,7 @@ var app = new Vue({
         loading: false,
         isError: false,
         model: {
-            url: 'http://localhost:1177/ressource/text',
+            url: demoUrls.text,
             cacheable: defaultConfig.request.default.cacheable,
             cancellable: defaultConfig.request.default.cancellable,
             timeout: defaultConfig.request.default.timeout,
@@ -136,7 +136,7 @@ var app = new Vue({
 
             if (Number(this.model.delay)) {
                 request.query = Object.assign(request.query || {}, {
-                    delay: Number(this.model.delay)
+                    sleep: Number(this.model.delay)
                 })
             }
 
@@ -317,6 +317,10 @@ myApi.${this.request.method}(${this.stringifyCorrectly(this.request)})
                 console.log('no doc:', path)
             }
 
+        },
+
+        switchMode () {
+            this.$root.$el.classList.toggle('hideForm')
         }
     },
     watch: {

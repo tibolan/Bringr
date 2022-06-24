@@ -1,5 +1,4 @@
-const basePath = location.origin
-const api = 'http://localhost:1177'
+const api = 'https://mock-bringr-demo.herokuapp.com'
 
 const demoUrls = {
     text: `${api}/ressource/text`,

@@ -14,9 +14,8 @@ class BringrResponse {
      * BringrResponse transform response into usable data
      * Could normalize response to a predictive and exhaustive format
      * Could automatically transform your response based on mime type
-     * Supply text, json, blob, arrayBuffer, formData, and even base64(*) output
+     * Supply text, json, blob, arrayBuffer, formData, and even base64 output
      * Could manage fetch duration
-     * (*) not in 'auto' mode
      * Internal code, should not use directly
      * @param options
      */
@@ -24,7 +23,8 @@ class BringrResponse {
         this.options = {
             normalize: true,
             transform: true,
-            type: 'json'
+            type: 'json',
+            blobAsBase64: false
         };
         this.options = DeepMerge(this.options, options);
     }
@@ -169,6 +169,7 @@ class BringrResponse {
             let blob = yield this.blob(res);
             return yield new Promise((resolve, reject) => __awaiter(this, void 0, void 0, function* () {
                 try {
+                    // await ??
                     const reader = yield new FileReader();
                     reader.onloadend = () => {
                         resolve(reader.result);
@@ -179,6 +180,7 @@ class BringrResponse {
                     reader.onabort = (err) => {
                         reject(err);
                     };
+                    // await ??
                     reader.readAsDataURL(blob);
                 }
                 catch (err) {
@@ -214,7 +216,11 @@ class BringrResponse {
                 || /^video/.test(mime)
                 || /^audio/.test(mime)
                 || /^font/.test(mime)) {
-                return yield this.base64(res);
+                console.log(this.options.blobAsBase64);
+                if (this.options.blobAsBase64) {
+                    return yield this.base64(res);
+                }
+                return yield this.blob(res);
             }
             return yield this.autoBrutForce(res);
         });
