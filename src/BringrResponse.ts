@@ -12,15 +12,15 @@ class BringrResponse   {
   public options: BringrResponseOptionsInterface = {
     normalize: true,
     transform: true,
-    type: 'json'
+    type: 'json',
+    blobAsBase64: false
   }
   /**
    * BringrResponse transform response into usable data
    * Could normalize response to a predictive and exhaustive format
    * Could automatically transform your response based on mime type
-   * Supply text, json, blob, arrayBuffer, formData, and even base64(*) output
+   * Supply text, json, blob, arrayBuffer, formData, and even base64 output
    * Could manage fetch duration
-   * (*) not in 'auto' mode
    * Internal code, should not use directly
    * @param options
    */
@@ -208,7 +208,10 @@ class BringrResponse   {
         || /^audio/.test(mime)
         || /^font/.test(mime)
     ) {
-      return await this.base64(res)
+      if (this.options.blobAsBase64) {
+        return await this.base64(res)
+      }
+      return await this.blob(res)
     }
     return await this.autoBrutForce(res)
   }

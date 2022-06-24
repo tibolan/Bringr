@@ -102,7 +102,8 @@ export interface BringrRequestInterface extends BringrRequestDefaultType {
 export interface BringrResponseOptionsInterface {
   normalize: boolean,
   transform: boolean,
-  type: BringrResponseTypeType
+  type: BringrResponseTypeType,
+  blobAsBase64: boolean
 }
 
 export interface BringrResponseInterface {
