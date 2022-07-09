@@ -5,7 +5,7 @@ import httpCodes from "./medias/httpCodes.js";
 import demoUrls from "./medias/demoUrls.js";
 import docs from "./medias/docs.js";
 
-const defaultConfig = {
+const defaultValues = {
     cache: {
         name: "myAPI",
         version: "1.0.0"
@@ -32,9 +32,17 @@ const defaultConfig = {
         type: 'auto'
     }
 }
-
-
-var app = new Vue({
+const defaultConf = {
+    request: {
+            default: {
+                headers: {
+                    authorization: 'Bearer a12b3c4d5e6f7g8h9i'
+                }
+            },
+            basePath: 'https://mock-bringr-demo.herokuapp.com'
+    }
+}
+const app = new Vue({
     el: '#app',
     data: {
         api: {
@@ -48,30 +56,32 @@ var app = new Vue({
         isError: false,
         model: {
             url: demoUrls.text,
-            cacheable: defaultConfig.request.default.cacheable,
-            cancellable: defaultConfig.request.default.cancellable,
-            timeout: defaultConfig.request.default.timeout,
-            method: defaultConfig.request.default.method,
-            responseType: defaultConfig.response.type,
+            cacheable: defaultValues.request.default.cacheable,
+            cancellable: defaultValues.request.default.cancellable,
+            timeout: defaultValues.request.default.timeout,
+            responseType: defaultValues.response.type,
+            ignoreCache: false,
             retry: {
-                max: defaultConfig.request.default.retry.max,
-                delay: defaultConfig.request.default.retry.delay,
+                max: defaultValues.request.default.retry.max,
+                delay: defaultValues.request.default.retry.delay,
                 attempt: 0,
-                condition: defaultConfig.request.default.retry.condition
+                condition: defaultValues.request.default.retry.condition
             },
             errorType: 400,
             delay: 0,
             body: "none"
         },
+        method: defaultValues.request.default.method,
         queryStringStrategy: 'standard',
         responseNormalize: true,
         responseTransform: true,
         httpCodes,
         demoUrls,
-        defaultConfig,
+        defaultConfig: defaultConf,
         expr: /object (\w+)/,
         maxChars: 500,
-        requests: []
+        requests: [],
+        fileToUpload: null
     },
     computed: {
         request() {
@@ -83,25 +93,25 @@ var app = new Vue({
             }
             let request = {
                 url: url,
-                method: this.model.method
+                // method: this.method
             }
 
-            if (Number(this.model.cacheable) !== defaultConfig.request.default.cacheable) {
+            if (Number(this.model.cacheable) !== defaultValues.request.default.cacheable) {
                 request.cacheable = Number(this.model.cacheable)
             }
-            if (this.model.cancellable !== defaultConfig.request.default.cancellable) {
+            if (this.model.cancellable !== defaultValues.request.default.cancellable) {
                 request.cancellable = this.model.cancellable
             }
-            if (Number(this.model.timeout) !== defaultConfig.request.default.timeout) {
+            if (Number(this.model.timeout) !== defaultValues.request.default.timeout) {
                 request.timeout = Number(this.model.timeout)
             }
 
 
             let retry = {}
-            if (Number(this.model.retry.max) !== defaultConfig.request.default.retry.max) {
+            if (Number(this.model.retry.max) !== defaultValues.request.default.retry.max) {
                 retry.max = Number(this.model.retry.max)
             }
-            if (Number(this.model.retry.delay) !== defaultConfig.request.default.retry.delay) {
+            if (Number(this.model.retry.delay) !== defaultValues.request.default.retry.delay) {
                 retry.delay = Number(this.model.retry.delay)
             }
             if (this.forceRetry) {
@@ -115,7 +125,7 @@ var app = new Vue({
             }
 
             let resp = {}
-            if (this.model.responseType !== defaultConfig.response.type) {
+            if (this.model.responseType !== defaultValues.response.type) {
                 resp.type = this.model.responseType
             }
             if (!this.responseNormalize) {
@@ -145,13 +155,14 @@ var app = new Vue({
             } else if (this.model.body === "formData") {
                 request.form = json
             } else if (this.model.body === "blob") {
-                let blob = new Blob(["This is some important text"],
-                    { type: "text/plain" });
-                request.blob = blob
-            } else if (['POST', 'PUT', 'PATCH'].includes(this.model.method)){
+                request.blob = this.fileToUpload
+            } else if (['POST', 'PUT', 'PATCH'].includes(this.model.method)) {
                 request.body = JSON.stringify(json)
             }
 
+            if (this.model.ignoreCache) {
+                request.ignoreCache = true
+            }
 
             return request
 
@@ -183,26 +194,29 @@ var app = new Vue({
 
         renderedRequest() {
             // return `const myApi = new Bringr(${this.stringifyCorrectly(defaultConfig)})
-            return `const myApi = new Bringr(defaultOptions)
-// same as myApi.fetch("${this.request.method}", {...}) 
-myApi.${this.request.method}(${this.stringifyCorrectly(this.request)})
+            return `const myApi = new Bringr(options)
+// same as myApi.fetch("${this.method}", {...}) 
+myApi.${this.method}(${this.stringifyCorrectly(this.request)})
   .then(...)
   .catch(...)`
         }
     },
     methods: {
-        onSubmit() {
+        async onSubmit() {
             this.base64Response = null
             this.requests.push(DeepMerge({}, this.request))
-            this.api.fetch(this.request.method, this.request)
+            let req = await this.api.fetch(this.method, this.request)
                 .then(async (res) => {
                     this.isError = false
                     this.setResponse(res)
+                    return res
                 })
                 .catch((err) => {
                     this.isError = true
                     this.setResponse(err)
+                    return err
                 })
+            console.log(`Request time: ${req.request.duration}ms`)
         },
         onChange() {
             if (this.autoRequest) {
@@ -228,7 +242,6 @@ myApi.${this.request.method}(${this.stringifyCorrectly(this.request)})
         refreshHighlight(type) {
             if (type) {
                 this.$nextTick(() => {
-                    console.log(type, this.$refs[type])
                     window.Prism.highlightAllUnder(this.$refs[type])
                 })
             } else {
@@ -316,11 +329,14 @@ myApi.${this.request.method}(${this.stringifyCorrectly(this.request)})
             } else {
                 console.log('no doc:', path)
             }
-
         },
 
-        switchMode () {
-            this.$root.$el.classList.toggle('hideForm')
+        switchMode() {
+            this.$root.$el.classList.toggle('hideResponse')
+        },
+
+        onFile(event) {
+            this.fileToUpload = event.target.files && event.target.files.length ? event.target.files : null
         }
     },
     watch: {
@@ -338,7 +354,7 @@ myApi.${this.request.method}(${this.stringifyCorrectly(this.request)})
         }
     },
     beforeMount() {
-        this.api = new Bringr(defaultConfig)
+        this.api = new Bringr(defaultConf)
         this.refreshHighlight()
     }
 })

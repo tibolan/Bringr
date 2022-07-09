@@ -34,14 +34,19 @@ class BringrRequest {
             attempt: 0
         };
         this.timeout = 0;
-        /** BUILD BODY FIRST TO NOT POLLUTE OBJECT */
+        /** BUILD BODY FIRST TO NOT POLLUTE OBJECT WITH SUGAR KEY (json, form...) */
         this.buildBody(request);
         /** MERGE WITH DEFAULT */
         DeepMerge(this, config.default, request);
         this.buildURI(config.basePath, request, config.queryStringStrategy);
     }
     buildURI(basePath, request, strategy) {
+        var _a;
         let baseUrl = `${basePath}${request.url}`;
+        /** TREAT DOUBLE CONCATENATION WHILE RETRY */
+        if (basePath && ((_a = request.url) === null || _a === void 0 ? void 0 : _a.match(basePath))) {
+            baseUrl = request.url;
+        }
         /** MONITOR TIME */
         this.startAt = performance.now();
         /** BUILD PROPER URL */
@@ -113,6 +118,11 @@ class BringrRequest {
         }
     }
     buildBody(request) {
+        /* GET or HEAD request can't get a body */
+        if (request.method && ['GET', 'HEAD'].includes(request.method)) {
+            console.warn('Request with GET/HEAD method cannot have body.', request);
+            return false;
+        }
         /* JSON type */
         if (request.json) {
             try {
@@ -130,7 +140,7 @@ class BringrRequest {
         /* FORM type*/
         else if (request.form) {
             try {
-                let form = new URLSearchParams();
+                let form = new FormData();
                 for (let field in request.form) {
                     form.append(field, request.form[field]);
                 }
@@ -141,10 +151,15 @@ class BringrRequest {
                 throw e;
             }
         }
-        else if (request.blob) {
+        /* FILES type */
+        else if (request.files) {
             try {
-                this.body = request.blob;
-                delete request.blob;
+                let data = new FormData();
+                for (let field in request.files) {
+                    data.append(field, request.files[field]);
+                }
+                this.body = data;
+                delete request.files;
             }
             catch (e) {
                 throw e;

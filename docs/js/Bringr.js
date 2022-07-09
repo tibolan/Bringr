@@ -104,12 +104,10 @@ class Bringr {
                     else {
                         /** THROW HTTP 40x/50x */
                         /** ALLOW TO 'CATCH' NOT OK RESPONSE*/
-                        console.log('else ko');
                         throw response;
                     }
                 }
                 catch (e) {
-                    console.log('in catch');
                     /** CATCH 40x/50x AND THROWN ERROR */
                     let response = yield this.response.build(null, request, e);
                     /** RETRY SUPPORT */

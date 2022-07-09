@@ -216,7 +216,6 @@ class BringrResponse {
                 || /^video/.test(mime)
                 || /^audio/.test(mime)
                 || /^font/.test(mime)) {
-                console.log(this.options.blobAsBase64);
                 if (this.options.blobAsBase64) {
                     return yield this.base64(res);
                 }

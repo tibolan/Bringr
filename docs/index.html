@@ -64,7 +64,7 @@
       padding: 5px;
     }
 
-    .grid-item, header {
+    .grid-item, aside {
       overflow-y: auto;
       padding-right: 10px;
     }
@@ -88,7 +88,7 @@
       align-items: flex-start;
       justify-content: flex-start;
       margin: 0px;
-      padding: 15px;
+      padding: 5px 10px;
       border: 1px solid black;
     }
 
@@ -100,21 +100,20 @@
 
     .legend {
       font-weight: bold;
-    }
-
-    .legend {
       border-top: 3px solid rgba(0, 0, 0, 0.1);
-      padding-top: 10px;
-      margin-top: 10px;
-      margin-bottom: 10px;
+      padding-top: 5px;
+      margin-top: 5px;
+      margin-bottom: 5px;
       min-width: 100%;
     }
 
     fieldset > div {
+      position: relative;
       min-width: 100%;
       display: flex;
       justify-content: space-between;
       align-items: center;
+      margin-bottom: 5px;
     }
 
     fieldset > div > label {
@@ -137,8 +136,8 @@
     }
 
     form label, form .label, form input, form select, form button {
-      margin-bottom: 10px;
       font-family: 'Roboto', sans-serif;
+      line-height: 18px;
     }
 
     form input:not([type="checkbox"]), form select, form button {
@@ -147,7 +146,21 @@
     }
 
     form input[type="checkbox"] {
-      transform: scale(1.2);
+      transform: scale(1);
+      margin: 8px 0 7px;
+    }
+
+
+    form input[type="file"] {
+      opacity: .00001;
+      position: absolute;
+      right: 0;
+      background: red;
+      z-index: 10;
+    }
+
+    form input[type="file"] + button {
+      padding: 5px;
     }
 
     form input, form select, form button {
@@ -161,11 +174,11 @@
     }
 
     form > div {
+      position: relative;
       display: flex;
       flex-direction: row;
       align-items: center;
       margin-right: 10px;
-
     }
 
     pre code {
@@ -202,11 +215,11 @@
       scrollbar-width: thin;
     }
 
-    .hideForm #request{
+    .hideResponse #request{
       display: none;
     }
 
-    .hideForm #response {
+    .hideResponse #response {
       grid-column: span 2;
     }
 
@@ -224,19 +237,6 @@
             <template v-for="(option, key) in demoUrls">
               <option :value="option">{{ key }}</option>
             </template>
-            <!--            <option value="http://localhost:1177/text">Text</option>
-                        <option value="https://images-api.nasa.gov/search?q=sun eclipse">JSON</option>
-                        <option value="http://localhost:1177/blob">Blob</option>
-                        <option value="http://localhost:63342/Bringr/image.png">PNG</option>
-                        <option value="http://localhost:63342/Bringr/foo.txt">File</option>
-                        <option value="https://file-examples.com/wp-content/uploads/2017/11/file_example_MP3_700KB.mp3">MP3</option>
-                        <option value="http://localhost:63342/Bringr/video.mp4">Video</option>
-                        <option value="http://localhost:1177/buffer">Buffer</option>
-                        <option value="http://localhost:1177/301">Redirection</option>
-                        <option value="error">Error</option>
-                        <option value="toto">Bad URL #1</option>
-                        <option value="ttp://www.google.fr">Bad URL #2</option>
-                        <option value="https://fonts.gstatic.com/s/roboto/v30/KFOlCnqEu92Fr1MmWUlfBBc4.woff2">Font</option>-->
           </select>
         </div>
         <div v-if="model.url === demoUrls.error">
@@ -260,7 +260,7 @@
         <legend>Request</legend>
         <div>
           <label for="method">Method</label>
-          <select v-model="model.method" id="method">
+          <select v-model="method" id="method">
             <option>GET</option>
             <option>POST</option>
             <option>PATCH</option>
@@ -273,6 +273,10 @@
           <input type="number" step="1000" min="0" id="cache" v-model="model.cacheable">
         </div>
         <div>
+          <label for="ignoreCache">Ignore Cache (force reload)</label>
+          <input type="checkbox" id="ignoreCache" v-model="model.ignoreCache">
+        </div>
+        <div>
           <label for="abort">Abortable</label>
           <input type="checkbox" id="abort" v-model="model.cancellable">
         </div>
@@ -280,16 +284,29 @@
           <label for="timeout">Timeout</label>
           <input type="number" step="1000" min="0" id="timeout" v-model="model.timeout">
         </div>
-        <p class="legend">Body</p>
-        <div>
-          <label for="body">Method</label>
-          <select v-model="model.body" id="body">
-            <option>none</option>
-            <option>json</option>
-            <option>formData</option>
-            <option>blob</option>
-          </select>
-        </div>
+        <template v-if="!['GET', 'HEAD'].includes(method)">
+          <p class="legend">Body</p>
+          <div>
+            <label for="body">Method</label>
+            <select v-model="model.body" id="body">
+              <option>none</option>
+              <option>json</option>
+              <option>formData</option>
+              <option>blob</option>
+            </select>
+          </div>
+          <div v-if="model.body === 'blob'">
+            <label for="file">File</label>
+            <input type="file" id="file" name="image" @change="onFile">
+            <button type="button">File</button>
+          </div>
+          <div v-if="model.body === 'blob'">
+            <small>The file will not be saved at any moment on the server.<br>The script will transform on the fly the first file in base64 and send it as response.</small>
+          </div>
+          <div>
+            <pre>fileToUpload: {{fileToUpload}}</pre>
+          </div>
+        </template>
         <p class="legend">Retry</p>
         <div>
           <label for="retryMax">max</label>
@@ -353,7 +370,7 @@
     <section class="grid-item" ref="request" id="request">
       <h2>Request</h2>
       <details>
-        <summary>defaultOptions</summary>
+        <summary>options</summary>
         <pre><code class="language-javascript" v-html="defaultConfig"></code></pre>
       </details>
       <pre @click="automaticDocumentation('request', $event)"><code class="language-javascript"
@@ -362,7 +379,9 @@
         <h2>Base64 Preview</h2>
         <p>Files have been download from <a href="https://file-examples.com/">https://file-examples.com/</a></p>
         <br>
-        <object :data="base64Response" width="100%"></object>
+        <object :data="base64Response" width="100%">
+          <a :href="base64Response" download>Télécharger</a>
+        </object>
       </template>
     </section>
     <section class="grid-item" ref="response" id="response">
