@@ -2,7 +2,6 @@ import BringrRequest from "./BringrRequest";
 import DeepMerge from "./DeepMerge.js";
 import { BringrConnectionError, BringrError, BringrTimeoutError } from "./Errors.js";
 import {
-  BringrRequestDefaultType,
   BringrRequestInterface,
   BringrResponseInterface,
   BringrResponseOptionsInterface
@@ -12,7 +11,7 @@ class BringrResponse   {
   public options: BringrResponseOptionsInterface = {
     normalize: true,
     transform: true,
-    type: 'json',
+    type: 'auto',
     blobAsBase64: false
   }
   /**

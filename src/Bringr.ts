@@ -13,7 +13,7 @@ import {
 class Bringr {
   public config: BringrOptionsInterface = {
     cache: {
-      name: "myAPI",
+      name: "BringrCache",
       version: "1.0.0"
     },
     request: {
@@ -35,7 +35,7 @@ class Bringr {
       normalize: true,
       transform: true,
       type: "auto",
-      blobAsBase64: true
+      blobAsBase64: false
     }
   };
   private cache: BringrCache;
@@ -73,6 +73,7 @@ class Bringr {
 
       /** CANCELLABLE SUPPORT */
       if (request.cancellable) {
+        // try to abort a previous request
         this.aborter.abort(request);
         this.aborter.register(request);
       }
@@ -111,11 +112,9 @@ class Bringr {
         } else {
           /** THROW HTTP 40x/50x */
           /** ALLOW TO 'CATCH' NOT OK RESPONSE*/
-          console.log('else ko')
           throw response;
         }
       } catch (e) {
-        console.log('in catch')
         /** CATCH 40x/50x AND THROWN ERROR */
         let response = await this.response.build(null, request, e);
 
@@ -139,23 +138,28 @@ class Bringr {
     return await this.fetch("GET", request as BringrRequestInterface);
   }
 
-  async DELETE(request: BringrRequestInterface): Promise<any> {
+  async DELETE(request: BringrRequestDefaultType): Promise<any> {
+    if (typeof request === "string") {
+      request = {
+        url: request
+      };
+    }
     return await this.fetch("DELETE", request as BringrRequestInterface);
   }
 
-  async HEAD(request: BringrRequestInterface): Promise<any> {
+  async HEAD(request: BringrRequestDefaultType): Promise<any> {
     return await this.fetch("HEAD", request as BringrRequestInterface);
   }
 
-  async POST(request: BringrRequestInterface): Promise<any> {
+  async POST(request: BringrRequestDefaultType): Promise<any> {
     return await this.fetch("POST", request as BringrRequestInterface);
   }
 
-  async PUT(request: BringrRequestInterface): Promise<any> {
+  async PUT(request: BringrRequestDefaultType): Promise<any> {
     return await this.fetch("PUT", request as BringrRequestInterface);
   }
 
-  async PATCH(request: BringrRequestInterface): Promise<any> {
+  async PATCH(request: BringrRequestDefaultType): Promise<any> {
     return await this.fetch("PATCH", request as BringrRequestInterface);
   }
 

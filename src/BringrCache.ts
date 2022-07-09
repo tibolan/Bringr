@@ -4,7 +4,7 @@ class BringrCache implements BringrCacheInterface {
   public ready: boolean = false
   public store: BringrCacheStoreInterface = {}
   public options: BringrCacheOptionsInterface = {
-    name: 'myAPI',
+    name: 'BringrCache',
     version: '1.0.0'
   }
   public cacheStorageSupported: boolean = false

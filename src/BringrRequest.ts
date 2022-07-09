@@ -18,7 +18,7 @@ class BringrRequest implements BringrRequestInterface {
   public endAt: number = 0
   public headers: any = {}
   public ignoreCache: boolean = false
-  public method: BringrMethodsType  = "GET";
+  public method: BringrMethodsType = "GET";
   public query: any;
   public retry: { max: number; delay: number; attempt: number; condition: any } = {
     max: 0,
@@ -36,7 +36,7 @@ class BringrRequest implements BringrRequestInterface {
    * @param config
    */
   constructor(request: BringrRequestDefaultType, config: BringrRequestOptionsInterface) {
-    /** BUILD BODY FIRST TO NOT POLLUTE OBJECT */
+    /** BUILD BODY FIRST TO NOT POLLUTE OBJECT WITH SUGAR KEY (json, form...) */
     this.buildBody(request)
     /** MERGE WITH DEFAULT */
     DeepMerge(this, config.default, request)
@@ -45,6 +45,12 @@ class BringrRequest implements BringrRequestInterface {
 
   buildURI(basePath: string, request: BringrRequestDefaultType, strategy: BringrQueryStringStrategyType): void {
     let baseUrl = `${basePath}${request.url}`
+
+    /** TREAT DOUBLE CONCATENATION WHILE RETRY */
+    if (basePath && request.url?.match(basePath)) {
+      baseUrl = request.url
+    }
+
     /** MONITOR TIME */
     this.startAt = performance.now()
 
@@ -123,7 +129,13 @@ class BringrRequest implements BringrRequestInterface {
     }
   }
 
-  buildBody (request: BringrRequestDefaultType) {
+  buildBody(request: BringrRequestDefaultType) {
+    /* GET or HEAD request can't get a body */
+    if (request.method && ['GET', 'HEAD'].includes(request.method)) {
+      console.warn('Request with GET/HEAD method cannot have body.', request)
+      return false
+    }
+
     /* JSON type */
     if (request.json) {
       try {
@@ -137,10 +149,10 @@ class BringrRequest implements BringrRequestInterface {
         throw e
       }
     }
-        /* FORM type*/
+    /* FORM type*/
     else if (request.form) {
       try {
-        let form = new URLSearchParams()
+        let form = new FormData()
         for (let field in request.form) {
           form.append(field, request.form[field])
         }
