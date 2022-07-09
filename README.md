@@ -1,25 +1,28 @@
 # Bringr
 
-window.fetch wrapper with 
-- [cacheStorage](https://developer.mozilla.org/en-US/docs/Web/API/CacheStorage) support, 
+window.fetch wrapper with support for
+- [cacheStorage](https://developer.mozilla.org/en-US/docs/Web/API/CacheStorage), 
 - [abortController](https://developer.mozilla.org/en-US/docs/Web/API/AbortController), 
-- timeout
-- retry
-- response transformation
+- advanced response type
+- easy payload format
+- timeout (via abortController)
+- retry, with advanced conditions management
+- and more options to suit your need 
 
-A Bringr request is a basic [window.fetch request](https://developer.mozilla.org/en-US/docs/Web/API/fetch), with additional options
+**Import Bringr in your project**
 
-- cacheable: number // duration in ms of the CacheStorage entry
-- cancellable: boolean // give the request the power to be aborted
-- timeout: number // cancel request if takes too long
-- retry: object // retry request for instable API
+You know how to, isn't it ? I will write it later.
 
-Furthermore, Bringr is predictive:
+**TL;DR ?**
 
-- if an error occur or the request fail (http 4xx / 5xx), the promise will be reject
-- else the promise will be resolve
+[Join the playground](https://tibolan.github.io/Bringr/) !
 
-# Demo
-[https://tibolan.github.io/Bringr/](https://tibolan.github.io/Bringr/)
+**Ready to read ? Follow the guide**
+
+1. [Bringr](Bringr.md) 
+2. [Options](options.md)
+3. [Request](request.md)
+4. [Response](response.md)
+5. [Cache](cache.md)
 
 README to be completed...
