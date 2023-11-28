@@ -1,4 +1,4 @@
-class y {
+class d {
   /**
    * BringrAbort operate AbortController by request
    * Could cancel a request to prevent repeated call
@@ -25,7 +25,7 @@ class y {
     clearTimeout(this.timers[t.url]), delete this.timers[t.url], delete this.store[t.url];
   }
 }
-class p {
+class b {
   /**
    * BringrCache operate CacheStorageAPI by request
    * Could cache a request and operate expired management
@@ -92,14 +92,25 @@ function f(i, ...t) {
       m(e[s]) ? (i[s] || Object.assign(i, { [s]: {} }), f(i[s], e[s])) : Object.assign(i, { [s]: e[s] });
   return f(i, ...t);
 }
-async function b(i = 1e3) {
+async function w(i = 1e3) {
   return await new Promise((t) => {
     setTimeout(() => {
       t(!0);
     }, i);
   });
 }
-class w {
+const g = {
+  ms: 1,
+  s: 1e3,
+  m: 1e3 * 60,
+  h: 1e3 * 60 * 60,
+  d: 1e3 * 60 * 60 * 24
+}, p = (i) => typeof i != "string" ? Number(i) : (i = i.replace(/\s/g, ""), i = i.replace(/([a-z])(\d)/gi, (t, e, s) => `${e} ${s}`), i.split(" ").reduce((t, e) => t + E(e), 0)), E = (i) => {
+  i = i.replace(/\D+/, (s) => ` ${s}`);
+  const [t, e] = i.split(" ");
+  return (g[e] || 0) * Number(t);
+};
+class A {
   /**
    * BringrRequest build a valid Request
    * Advanced query build options and a retry management
@@ -178,7 +189,7 @@ class w {
   }
   async checkRetry(t, e) {
     try {
-      return this.retry.max > this.retry.attempt && this.checkCondition(this.retry.condition, t, e) ? (this.retry.attempt++, this.retry.delay && await b(this.retry.delay), !0) : !1;
+      return this.retry.max > this.retry.attempt && this.checkCondition(this.retry.condition, t, e) ? (this.retry.attempt++, this.retry.delay && await w(p(this.retry.delay)), !0) : !1;
     } catch {
       return !1;
     }
@@ -210,17 +221,17 @@ class w {
     return a;
   }
 }
-class g extends Error {
+class T extends Error {
   constructor(t = "", e = {}) {
     super(t, e), this.message = t, this.name = "BringrTimeoutError";
   }
 }
-class A extends Error {
+class j extends Error {
   constructor(t, e = {}) {
     super(t, e), this.message = `${t}`, this.name = "BringrConnectionError";
   }
 }
-class S extends Error {
+class v extends Error {
   constructor(t, e = {}) {
     super(t, e), this.message = `${t}`, this.name = "BringrError";
   }
@@ -253,13 +264,13 @@ class u {
       request: e
     }, o = e.response && e.response.normalize !== void 0 ? e.response.normalize : this.options.normalize, n = e.response && e.response.transform !== void 0 ? e.response.transform : this.options.transform, h = e.response && e.response.type !== void 0 ? e.response.type : this.options.type;
     if (s && s instanceof Error)
-      return e.duration = u.setDuration(e), (navigator.onLine !== void 0 ? navigator.onLine : !0) ? s.name === "TypeError" ? s = new S(s.message) : s.name === "AbortError" && e.timeout && e.duration >= e.timeout ? (s = new g("request aborted by timeout", {
+      return e.duration = u.setDuration(e), (navigator.onLine !== void 0 ? navigator.onLine : !0) ? s.name === "TypeError" ? s = new v(s.message) : s.name === "AbortError" && e.timeout && e.duration >= e.timeout ? (s = new T("request aborted by timeout", {
         cause: s
       }), Object.assign(r, {
         timeout: !0
       })) : s.name === "AbortError" && Object.assign(r, {
         aborted: !0
-      }) : s = new A("No connection available"), o ? (t && Object.assign(r, {
+      }) : s = new j("No connection available"), o ? (t && Object.assign(r, {
         response: t
       }), Object.assign(r, {
         error: {
@@ -274,8 +285,8 @@ class u {
       if (n)
         try {
           l = await this[h](c.clone());
-        } catch (d) {
-          l = d;
+        } catch (y) {
+          l = y;
         }
       return o ? (Object.assign(r, {
         response: c,
@@ -359,7 +370,7 @@ class u {
     return t;
   }
 }
-class E {
+class S {
   constructor(t) {
     this.config = {
       cache: {
@@ -387,13 +398,13 @@ class E {
         type: "auto",
         blobAsBase64: !1
       }
-    }, this.loading = !1, this.config = f(this.config, t), this.cache = new p(this.config.cache), this.aborter = new y(), this.response = new u(this.config.response);
+    }, this.loading = !1, this.config = f(this.config, t), this.cache = new b(this.config.cache), this.aborter = new d(), this.response = new u(this.config.response);
   }
   async fetch(t, e) {
     if (this.loading = !0, this.cache.ready) {
       let s;
       try {
-        e.method = t, s = new w(e, this.config.request);
+        e.method = t, s = new A(e, this.config.request);
       } catch (a) {
         return this.loading = !1, Promise.reject(await this.response.build(null, e, a));
       }
@@ -408,7 +419,7 @@ class E {
       }
       try {
         const a = await window.fetch(s.url, s);
-        if (s.timeout && this.aborter.clear(s), a.ok && s.cacheable && await this.cache.add(s.url, a, s.cacheable), a.ok)
+        if (s.timeout && this.aborter.clear(s), a.ok && s.cacheable && await this.cache.add(s.url, a, p(s.cacheable)), a.ok)
           return await this.response.build(a, s);
         throw a;
       } catch (a) {
@@ -455,5 +466,5 @@ class E {
   }
 }
 export {
-  E as default
+  S as default
 };
