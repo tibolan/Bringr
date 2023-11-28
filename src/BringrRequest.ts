@@ -56,7 +56,7 @@ class BringrRequest implements BringrRequestInterface {
 
     /** BUILD PROPER URL */
     try {
-      let url = new URL(baseUrl)
+      const url = new URL(baseUrl)
       /** PROCESS QUERY */
       this.processQuery(url, strategy)
       this.url = url.toString()
@@ -67,15 +67,16 @@ class BringrRequest implements BringrRequestInterface {
 
   processQuery(url: URL, strategy: BringrQueryStringStrategyType) {
     /** GET QUERY STRING PARAMETERS IN this.url */
-    let searchParams = (url.toString().split('?'))[1]
+    const searchParams = (url.toString().split('?'))[1]
     if (searchParams) {
       /** TRANSFORM PARAMETERS INTO ARRAY OF 'KEY=VALUE' */
-      let queryParams: any[] = searchParams.split('&')
+      const queryParams: any[] = searchParams.split('&')
       /** STORAGE */
-      let urlQuery: any = {}
+      const urlQuery: any = {}
 
       /** PARSE AND MERGE INTO REQUEST THE QUERY PARAMS PRESENTS IN this.url */
-      for (let param of queryParams) {
+      for (const param of queryParams) {
+        // tslint:disable-next-line:prefer-const
         let [key, value] = param.split('=')
 
         /** IF VALUE IS LIKE "v1,v2,v3", CAST AS ARRAY */
@@ -97,8 +98,10 @@ class BringrRequest implements BringrRequestInterface {
       }
 
       /** CLEAR QUERY PARAMS IN this.url */
-      for (let q in urlQuery) {
-        url.searchParams.delete(q)
+      for (const q in urlQuery) {
+        if (urlQuery[q]) {
+          url.searchParams.delete(q)
+        }
       }
 
       /** MERGE QUERY SOURCE */
@@ -107,16 +110,18 @@ class BringrRequest implements BringrRequestInterface {
 
     if (this.query) {
       /** ADD QUERY PARAMS FROM this.query IN this.url */
-      for (let q in this.query) {
-        url.searchParams.append(q, this.query[q])
+      for (const q in this.query) {
+        if (q in this.query) {
+          url.searchParams.append(q, this.query[q])
+        }
       }
 
       /** APPLY REPEATED KEY STRATEGY */
       if (['duplicate', 'bracket'].includes(strategy)) {
-        for (let param in this.query) {
+        for (const param in this.query) {
           if (Array.isArray(this.query[param])) {
             url.searchParams.delete(param)
-            for (let value of this.query[param]) {
+            for (const value of this.query[param]) {
               if (strategy === 'duplicate') {
                 url.searchParams.append(param, value)
               } else if (strategy === 'bracket') {
@@ -132,7 +137,6 @@ class BringrRequest implements BringrRequestInterface {
   buildBody(request: BringrRequestDefaultType) {
     /* GET or HEAD request can't get a body */
     if (request.method && ['GET', 'HEAD'].includes(request.method)) {
-      console.warn('Request with GET/HEAD method cannot have body.', request)
       return false
     }
 
@@ -152,8 +156,9 @@ class BringrRequest implements BringrRequestInterface {
     /* FORM type*/
     else if (request.form) {
       try {
-        let form = new FormData()
-        for (let field in request.form) {
+        const form = new FormData()
+        for (const field in request.form) {
+          if (field in request.d)
           form.append(field, request.form[field])
         }
         this.body = form

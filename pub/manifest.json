@@ -1,0 +1,7 @@
+{
+  "src/index.ts": {
+    "file": "Bringr.umd.js",
+    "isEntry": true,
+    "src": "src/index.ts"
+  }
+}

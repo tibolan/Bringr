@@ -25,7 +25,7 @@ class BringrCache implements BringrCacheInterface {
     })
   }
 
-  async getCache(url: string): Promise<Response | Boolean> {
+  async getCache(url: string): Promise<Response | boolean> {
     if (!this.ready) {
       return new Promise(resolve => {
         window.requestAnimationFrame(() => {
@@ -33,8 +33,8 @@ class BringrCache implements BringrCacheInterface {
         })
       })
     } else {
-      let cacheStorage = await caches.open(this.options.name)
-      let cachedRequest = await cacheStorage.match(encodeURI(url))
+      const cacheStorage = await caches.open(this.options.name)
+      const cachedRequest = await cacheStorage.match(encodeURI(url))
       if (cachedRequest) {
         return this.check(url) && cachedRequest
       }
@@ -44,7 +44,7 @@ class BringrCache implements BringrCacheInterface {
   }
 
   check(url: string): boolean {
-    let cacheEntry = this.store[this.options.version][url]
+    const cacheEntry = this.store[this.options.version][url]
     if (cacheEntry && cacheEntry > Date.now()) {
       return true
     } else if (cacheEntry) {
@@ -55,7 +55,7 @@ class BringrCache implements BringrCacheInterface {
 
   async add(url: string, response: Response, duration: number): Promise<void> {
     try {
-      let cacheStorage = await caches.open(this.options.name)
+      const cacheStorage = await caches.open(this.options.name)
       await cacheStorage.put(encodeURI(url), await response.clone())
       this.store[this.options.version][url] = Date.now() + duration
       this.save()
@@ -65,7 +65,7 @@ class BringrCache implements BringrCacheInterface {
   }
 
   async remove(url: string): Promise<void> {
-    let cacheStorage = await caches.open(this.options.name)
+    const cacheStorage = await caches.open(this.options.name)
     await cacheStorage.delete(encodeURI(url))
     delete this.store[this.options.version][url]
     this.save()
@@ -92,7 +92,7 @@ class BringrCache implements BringrCacheInterface {
   }
 
   save(): void {
-    let store = JSON.stringify(this.store)
+    const store = JSON.stringify(this.store)
     if (store) {
       localStorage.setItem(this.options.name, store)
     }

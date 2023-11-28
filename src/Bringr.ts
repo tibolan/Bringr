@@ -80,7 +80,7 @@ class Bringr {
 
       /** CACHE STORAGE SUPPORT */
       if (this.cache.cacheStorageSupported && request.cacheable && !request.ignoreCache) {
-        const cache: Response | Boolean = await this.cache.getCache(request.url);
+        const cache: Response | boolean = await this.cache.getCache(request.url);
         if (cache) {
           this.loading = false;
           return await this.response.build(cache as Response, request, null, true);
@@ -89,12 +89,12 @@ class Bringr {
 
       /** TIMEOUT SUPPORT */
       if (request.timeout) {
-        let timeout = Number(request.timeout);
+        const timeout = Number(request.timeout);
         this.aborter.abortAfter(request, timeout);
       }
 
       try {
-        let response = await window.fetch(request.url, request);
+        const response = await window.fetch(request.url, request);
 
         /** CLEAR TIMEOUT */
         if (request.timeout) {
@@ -110,13 +110,12 @@ class Bringr {
         if (response.ok) {
           return await this.response.build(response, request);
         } else {
-          /** THROW HTTP 40x/50x */
-          /** ALLOW TO 'CATCH' NOT OK RESPONSE*/
+          /* THROW HTTP 40x/50x, ALLOW TO 'CATCH' NOT OK RESPONSE */
           throw response;
         }
       } catch (e) {
         /** CATCH 40x/50x AND THROWN ERROR */
-        let response = await this.response.build(null, request, e);
+        const response = await this.response.build(null, request, e);
 
         /** RETRY SUPPORT */
         if (await request.checkRetry(response, request)) {
@@ -129,7 +128,7 @@ class Bringr {
     }
   }
 
-  async GET(request: BringrRequestDefaultType | String): Promise<any> {
+  async GET(request: BringrRequestDefaultType | string): Promise<any> {
     if (typeof request === "string") {
       request = {
         url: request

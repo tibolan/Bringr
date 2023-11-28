@@ -1,17 +1,24 @@
 {
-  "name": "Bringr",
+  "name": "bringr",
   "version": "1.0.0",
   "description": "ultimate fetch wrapper with cacheStorage, abortController, timeout, retry and some sugar to fetch without any hassle.",
-  "main": "lib/index.js",
   "type": "module",
-  "types": "lib/index.d.ts",
   "files": [
-    "lib/**/*"
+    "pub"
   ],
+  "main": "./pub/Bringr.js",
+  "module": "./pub/Bringr.es.js",
+  "types": "./pub/index.d.ts",
+  "exports": {
+    ".": {
+      "import": "./pub/Bringr.es.js",
+      "require": "./pub/Bringr.umd.js"
+    }
+  },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "dev": "tsc --watch",
-    "build": "tsc",
+    "build": "vite build",
     "format": "prettier --write \"src/**/*.ts\"",
     "lint": "tslint -p tsconfig.json",
     "prepare": "npm run build",
@@ -23,10 +30,13 @@
   "author": "tibolan@webq.fr",
   "license": "ISC",
   "devDependencies": {
+    "@vitejs/plugin-vue2": "^2.2.0",
     "prettier": "~2.6.2",
+    "rollup-plugin-typescript2": "^0.35.0",
     "tslint": "~6.1.3",
     "tslint-config-prettier": "~1.18.0",
-    "typescript": "~4.6.4"
-  },
-  "dependencies": {}
+    "typescript": "~4.6.4",
+    "vite": "^4.4.9",
+    "vite-plugin-dts": "^3.5.3"
+  }
 }
