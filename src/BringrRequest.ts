@@ -7,6 +7,7 @@ import {
   BringrRequestDefaultType,
   BringrRequestInterface
 } from "./types";
+import DurationParser from "./DurationParser";
 
 class BringrRequest implements BringrRequestInterface {
   public url: string = ''
@@ -183,7 +184,7 @@ class BringrRequest implements BringrRequestInterface {
       if (this.retry.max > this.retry.attempt && this.checkCondition(this.retry.condition, response, request)) {
         this.retry.attempt++
         if (this.retry.delay) {
-          await sleep(this.retry.delay)
+          await sleep(DurationParser(this.retry.delay))
         }
         return true
       }

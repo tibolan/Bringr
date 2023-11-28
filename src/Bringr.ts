@@ -9,6 +9,7 @@ import {
   BringrRequestDefaultType,
   BringrOptionsInterface
 } from "./types";
+import DurationParser from "./DurationParser";
 
 class Bringr {
   public config: BringrOptionsInterface = {
@@ -103,7 +104,7 @@ class Bringr {
 
         /** STORE CACHE */
         if (response.ok && request.cacheable) {
-          await this.cache.add(request.url, response, request.cacheable);
+          await this.cache.add(request.url, response, DurationParser(request.cacheable));
         }
 
         /** SEND RESPONSE */

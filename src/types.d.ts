@@ -64,7 +64,7 @@ export interface BringrRequestOptionsInterface {
 
 export interface BringrRequestRetryInterface {
   max: number,
-  delay: number,
+  delay: number | string,
   attempt: number,
   condition: any
 }
@@ -73,7 +73,7 @@ export interface BringrRequestDefaultType {
   url?: string
   method?: BringrMethodsType
   id?: string
-  cacheable?: number
+  cacheable?: number | string | boolean
   cancellable?: boolean
   timeout?: number
   query?: any
